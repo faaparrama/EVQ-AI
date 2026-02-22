@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Expectancy-Value Questionnaire</title>
+    <meta name="description"
+        content="Measure your expectancy value for AI use based on Wigfield & Eccles' Expectancy-Value Theory.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --gold: #CFB991;
+            --rush: #DAAA00;
+            --aged: #8E6F3E;
+            --field: #DDB945;
+            --dust: #EBD99F;
+            --steel: #555960;
+            --cool-gray: #6F727B;
+            --railway: #9D9795;
+            --steam: #C4BFC0;
+            --black: #000;
+            --surface: #131313;
+            --card: #1e1e1e;
+            --card-hover: #272727;
+            --white: #FFF;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --tr: 0.3s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 20% 20%, rgba(207, 185, 145, .06)0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(218, 170, 0, .04)0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+            position: relative;
+            z-index: 1
+        }
+
+        .header {
+            text-align: center;
+            padding: 48px 0 20px;
+            animation: fadeDown .8s ease-out
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(207, 185, 145, .1);
+            border: 1px solid rgba(207, 185, 145, .2);
+            border-radius: 100px;
+            padding: 8px 20px;
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--gold);
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            margin-bottom: 24px
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -.03em;
+            line-height: 1.15;
+            background: linear-gradient(135deg, var(--white), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 14px
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            color: var(--steam);
+            max-width: 560px;
+            margin: 0 auto;
+            font-weight: 300
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin: 16px 0 8px;
+            background: rgba(207, 185, 145, .08);
+            border-radius: 100px;
+            padding: 4px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        .lang-btn {
+            padding: 8px 20px;
+            border-radius: 100px;
+            border: none;
+            background: transparent;
+            color: var(--steam);
+            font-family: inherit;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--tr)
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, var(--gold), var(--rush));
+            color: var(--black)
+        }
+
+        .progress-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, .85);
+            backdrop-filter: blur(20px);
+            padding: 16px 20px 12px;
+            margin: 0 -20px;
+            border-bottom: 1px solid rgba(207, 185, 145, .1)
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: .82rem;
+            color: var(--steam);
+            font-weight: 500
+        }
+
+        .progress-info span:last-child {
+            color: var(--gold);
+            font-weight: 600
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(207, 185, 145, .12);
+            border-radius: 100px;
+            overflow: hidden
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--aged), var(--gold), var(--rush));
+            border-radius: 100px;
+            transition: width .5s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .dim-nav {
+            display: flex;
+            gap: 8px;
+            margin: 28px 0 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none
+        }
+
+        .dim-nav::-webkit-scrollbar {
+            display: none
+        }
+
+        .dim-tab {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            border-radius: 100px;
+            border: 1px solid rgba(207, 185, 145, .15);
+            background: rgba(207, 185, 145, .05);
+            color: var(--steam);
+            font-size: .8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--tr);
+            white-space: nowrap
+        }
+
+        .dim-tab:hover {
+            background: rgba(207, 185, 145, .12)
+        }
+
+        .dim-tab.active {
+            background: linear-gradient(135deg, var(--gold), var(--rush));
+            color: var(--black);
+            border-color: transparent;
+            font-weight: 700
+        }
+
+        .dim-tab.completed {
+            border-color: rgba(207, 185, 145, .4);
+            color: var(--gold)
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn .5s ease-out
+        }
+
+        .screen.active {
+            display: block
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn .5s ease-out
+        }
+
+        .section.active {
+            display: block
+        }
+
+        .section-header {
+            margin: 32px 0 8px
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px
+        }
+
+        .section-header p {
+            font-size: .9rem;
+            color: var(--railway);
+            font-weight: 300
+        }
+
+        .question-card {
+            background: var(--card);
+            border: 1px solid rgba(207, 185, 145, .08);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 18px 0;
+            transition: var(--tr);
+            position: relative;
+            overflow: hidden
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--gold), var(--aged));
+            opacity: 0;
+            transition: opacity var(--tr)
+        }
+
+        .question-card:hover {
+            border-color: rgba(207, 185, 145, .2);
+            background: var(--card-hover)
+        }
+
+        .question-card.answered::before {
+            opacity: 1
+        }
+
+        .question-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(207, 185, 145, .1);
+            color: var(--gold);
+            font-size: .78rem;
+            font-weight: 700;
+            margin-bottom: 12px
+        }
+
+        .question-text {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.5
+        }
+
+        .likert-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: .7rem;
+            color: var(--cool-gray);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .likert-row {
+            display: flex;
+            gap: 6px;
+            justify-content: space-between
+        }
+
+        .likert-option {
+            flex: 1;
+            position: relative
+        }
+
+        .likert-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none
+        }
+
+        .likert-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 46px;
+            border-radius: var(--radius-sm);
+            background: rgba(207, 185, 145, .06);
+            border: 1px solid rgba(207, 185, 145, .1);
+            color: var(--steam);
+            font-size: .88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--tr)
+        }
+
+        .likert-option label:hover {
+            background: rgba(207, 185, 145, .15);
+            border-color: rgba(207, 185, 145, .3);
+            transform: translateY(-2px)
+        }
+
+        .likert-option input:checked+label {
+            background: linear-gradient(135deg, var(--gold), var(--rush));
+            color: var(--black);
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(207, 185, 145, .3);
+            transform: translateY(-2px)
+        }
+
+        .likert-option label:focus-within,
+        .likert-option input:focus+label {
+            outline: 2px solid var(--rush);
+            outline-offset: 2px
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 36px;
+            gap: 12px
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-family: inherit;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--tr);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .btn-secondary {
+            background: rgba(207, 185, 145, .1);
+            color: var(--gold);
+            border: 1px solid rgba(207, 185, 145, .2)
+        }
+
+        .btn-secondary:hover {
+            background: rgba(207, 185, 145, .2)
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), var(--rush));
+            color: var(--black);
+            box-shadow: 0 4px 24px rgba(207, 185, 145, .25)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(207, 185, 145, .35)
+        }
+
+        .btn-primary:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--rush);
+            outline-offset: 2px
+        }
+
+        /* Consent & Demographics */
+        .consent-box {
+            background: var(--card);
+            border: 1px solid rgba(207, 185, 145, .15);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin: 24px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: .9rem;
+            color: var(--steam);
+            line-height: 1.7
+        }
+
+        .consent-box h3 {
+            color: var(--gold);
+            margin-bottom: 12px
+        }
+
+        .consent-check {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            font-size: .92rem;
+            color: var(--white);
+            cursor: pointer
+        }
+
+        .consent-check input[type=checkbox] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--gold)
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 20px 0
+        }
+
+        .demo-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .demo-field label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .demo-field select,
+        .demo-field input {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(207, 185, 145, .15);
+            background: var(--card);
+            color: var(--white);
+            font-family: inherit;
+            font-size: .9rem;
+            transition: var(--tr)
+        }
+
+        .demo-field select:focus,
+        .demo-field input:focus {
+            border-color: var(--gold);
+            outline: none
+        }
+
+        .demo-field select option {
+            background: var(--card);
+            color: var(--white)
+        }
+
+        /* Results */
+        .results-header {
+            text-align: center;
+            padding: 40px 0 32px
+        }
+
+        .results-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--white), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px
+        }
+
+        .results-header p {
+            color: var(--steam);
+            font-weight: 300
+        }
+
+        .overall-card {
+            background: linear-gradient(135deg, rgba(207, 185, 145, .08), rgba(218, 170, 0, .05));
+            border: 1px solid rgba(207, 185, 145, .2);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 28px
+        }
+
+        .overall-card h3 {
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 8px
+        }
+
+        .overall-score-ring {
+            width: 140px;
+            height: 140px;
+            margin: 16px auto;
+            position: relative
+        }
+
+        .overall-score-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg)
+        }
+
+        .overall-score-ring .track {
+            fill: none;
+            stroke: rgba(207, 185, 145, .1);
+            stroke-width: 8
+        }
+
+        .overall-score-ring .fill-ring {
+            fill: none;
+            stroke: url(#goldGrad);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 345.6;
+            stroke-dashoffset: 345.6;
+            transition: stroke-dashoffset 1.5s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .overall-score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center
+        }
+
+        .overall-score-text .value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1
+        }
+
+        .overall-score-text .max {
+            font-size: .75rem;
+            color: var(--steel);
+            font-weight: 500
+        }
+
+        .overall-feedback {
+            color: var(--steam);
+            font-weight: 300;
+            font-size: .95rem;
+            margin-top: 8px
+        }
+
+        /* Radar Chart */
+        .radar-card {
+            background: var(--card);
+            border: 1px solid rgba(207, 185, 145, .1);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+            text-align: center
+        }
+
+        .radar-card h3 {
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 16px
+        }
+
+        .radar-svg {
+            max-width: 360px;
+            margin: 0 auto
+        }
+
+        .score-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 32px
+        }
+
+        .score-card {
+            background: var(--card);
+            border: 1px solid rgba(207, 185, 145, .1);
+            border-radius: var(--radius);
+            padding: 28px;
+            transition: var(--tr);
+            opacity: 0;
+            transform: translateY(20px)
+        }
+
+        .score-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity .6s ease-out, transform .6s ease-out
+        }
+
+        .score-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px
+        }
+
+        .score-card-title {
+            font-size: 1.1rem;
+            font-weight: 700
+        }
+
+        .score-card-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--gold)
+        }
+
+        .score-bar-track {
+            width: 100%;
+            height: 10px;
+            background: rgba(207, 185, 145, .1);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 14px
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            width: 0%;
+            transition: width 1.2s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .score-bar-fill.low {
+            background: linear-gradient(90deg, #c0392b, #e74c3c)
+        }
+
+        .score-bar-fill.moderate {
+            background: linear-gradient(90deg, var(--aged), var(--gold))
+        }
+
+        .score-bar-fill.high {
+            background: linear-gradient(90deg, var(--gold), var(--rush))
+        }
+
+        .score-level {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 100px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 10px
+        }
+
+        .score-level.low {
+            background: rgba(192, 57, 43, .15);
+            color: #e74c3c
+        }
+
+        .score-level.moderate {
+            background: rgba(207, 185, 145, .15);
+            color: var(--gold)
+        }
+
+        .score-level.high {
+            background: rgba(218, 170, 0, .15);
+            color: var(--rush)
+        }
+
+        .score-feedback {
+            font-size: .88rem;
+            color: var(--railway);
+            line-height: 1.55;
+            font-weight: 300
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 32px 0 20px
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            color: var(--steel);
+            font-size: .75rem;
+            border-top: 1px solid rgba(207, 185, 145, .08);
+            margin-top: 40px
+        }
+
+        .footer a {
+            color: var(--gold);
+            text-decoration: none
+        }
+
+        /* Confetti Canvas */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* Print */
+        @media print {
+            body {
+                background: #fff !important;
+                color: #000 !important
+            }
+
+            body::before,
+            #confettiCanvas,
+            .progress-container,
+            .dim-nav,
+            .nav-buttons,
+            .action-buttons,
+            .btn,
+            .lang-toggle {
+                display: none !important
+            }
+
+            .screen.active,
+            .section {
+                display: block !important
+            }
+
+            #resultsSection {
+                display: block !important
+            }
+
+            #consentScreen,
+            #demoScreen,
+            #questionnaire {
+                display: none !important
+            }
+
+            .header h1 {
+                -webkit-text-fill-color: #000;
+                font-size: 1.6rem
+            }
+
+            .container {
+                padding: 0 20px
+            }
+
+            .score-card,
+            .overall-card,
+            .radar-card {
+                background: #f9f9f9 !important;
+                border: 1px solid #ddd !important;
+                color: #000 !important;
+                opacity: 1 !important;
+                transform: none !important
+            }
+
+            .score-card-title,
+            .score-card-value,
+            .results-header h2 {
+                color: #000 !important;
+                -webkit-text-fill-color: #000
+            }
+
+            .score-feedback,
+            .overall-feedback,
+            .results-header p {
+                color: #333 !important
+            }
+        }
+
+        @media(max-width:600px) {
+            .container {
+                padding: 16px 14px 40px
+            }
+
+            .header {
+                padding: 32px 0 16px
+            }
+
+            .question-card {
+                padding: 20px
+            }
+
+            .likert-option label {
+                height: 40px;
+                font-size: .8rem
+            }
+
+            .nav-buttons,
+            .action-buttons {
+                flex-direction: column
+            }
+
+            .btn {
+                justify-content: center
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+    <div class="container">
+        <header class="header">
+            <div class="header-badge">⚙ Wigfield &amp; Eccles Framework</div>
+            <h1>AI Expectancy-Value<br>Questionnaire</h1>
+            <p id="headerSubtitle">Explore your motivation and beliefs about using Artificial Intelligence through 20
+                research-based questions.</p>
+            <div class="lang-toggle" role="radiogroup" aria-label="Language selection">
+                <button class="lang-btn active" onclick="setLang('en')" role="radio" aria-checked="true"
+                    id="langEn">English</button>
+                <button class="lang-btn" onclick="setLang('es')" role="radio" aria-checked="false"
+                    id="langEs">Español</button>
+            </div>
+        </header>
+
+        <!-- CONSENT SCREEN -->
+        <div class="screen active" id="consentScreen">
+            <div class="consent-box" id="consentText"></div>
+            <label class="consent-check"><input type="checkbox" id="consentCheckbox"
+                    aria-label="I agree to participate"><span id="consentLabel"></span></label>
+            <div style="text-align:center"><button class="btn btn-primary" id="consentBtn" disabled
+                    onclick="startDemographics()"><span id="consentBtnText">Continue</span></button></div>
+        </div>
+
+        <!-- DEMOGRAPHICS SCREEN -->
+        <div class="screen" id="demoScreen">
+            <div class="section-header">
+                <h2 id="demoTitle">About You</h2>
+                <p id="demoSubtitle">Optional — helps us understand our respondents better.</p>
+            </div>
+            <div class="demo-grid">
+                <div class="demo-field"><label for="demoRole" id="demoRoleLabel">Role</label><select id="demoRole">
+                        <option value="">—</option>
+                    </select></div>
+                <div class="demo-field"><label for="demoAge" id="demoAgeLabel">Age Range</label><select id="demoAge">
+                        <option value="">—</option>
+                    </select></div>
+                <div class="demo-field"><label for="demoField" id="demoFieldLabel">Field of Study</label><select
+                        id="demoField">
+                        <option value="">—</option>
+                    </select></div>
+                <div class="demo-field"><label for="demoExp" id="demoExpLabel">AI Experience</label><select
+                        id="demoExp">
+                        <option value="">—</option>
+                    </select></div>
+            </div>
+            <div style="text-align:center;margin-top:24px"><button class="btn btn-primary"
+                    onclick="startQuestionnaire()"><span id="demoBtnText">Begin Questionnaire</span></button></div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-container" id="progressBar" style="display:none">
+            <div class="progress-info"><span id="progressLabel">Section 1 of 5</span><span
+                    id="progressPercent">0%</span></div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+            </div>
+        </div>
+        <nav class="dim-nav" id="dimNav" style="display:none" role="tablist" aria-label="Questionnaire dimensions">
+        </nav>
+        <div id="questionnaire"></div>
+
+        <!-- RESULTS -->
+        <div class="screen" id="resultsSection" role="region" aria-label="Results">
+            <div class="results-header">
+                <h2 id="resultsTitle">Your Results</h2>
+                <p id="resultsSubtitle">Here's a breakdown of your Expectancy-Value profile for AI use.</p>
+            </div>
+            <div class="overall-card">
+                <h3 id="overallLabel">Overall EVQ Score</h3>
+                <div class="overall-score-ring"><svg viewBox="0 0 130 130">
+                        <defs>
+                            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#8E6F3E" />
+                                <stop offset="50%" stop-color="#CFB991" />
+                                <stop offset="100%" stop-color="#DAAA00" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="track" cx="65" cy="65" r="55" />
+                        <circle class="fill-ring" id="overallRing" cx="65" cy="65" r="55" />
+                    </svg>
+                    <div class="overall-score-text">
+                        <div class="value" id="overallValue">0.0</div>
+                        <div class="max">/ 7.0</div>
+                    </div>
+                </div>
+                <p class="overall-feedback" id="overallFeedback"></p>
+            </div>
+            <div class="radar-card">
+                <h3 id="radarLabel">Dimension Profile</h3><svg class="radar-svg" id="radarChart"
+                    viewBox="0 0 300 300"></svg>
+            </div>
+            <div class="score-grid" id="scoreGrid"></div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="downloadReport()" aria-label="Download report"><svg width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg><span id="dlBtn">Download Report</span></button>
+                <button class="btn btn-secondary" onclick="emailReport()" aria-label="Email report"><svg width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg><span id="emBtn">Send to Email</span></button>
+                <button class="btn btn-secondary" onclick="retakeQuiz()" aria-label="Retake questionnaire"><svg
+                        width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="1 4 1 10 7 10" />
+                        <path d="M3.51 15a9 9 0 105.64-10.36L1 10" />
+                    </svg><span id="rtBtn">Retake</span></button>
+            </div>
+        </div>
+        <footer class="footer">Based on <a href="#">Wigfield &amp; Eccles' Expectancy-Value Theory</a> · Adapted for AI
+            Use · 2026</footer>
+    </div>
+
+    <script>
+        // ══════ CONFIG: SET YOUR GOOGLE APPS SCRIPT URL HERE ══════
+        const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycby085SyjB8h-4i_o4Y-6c3SpJUq6mGX7J30mhjQNsfMJDdcJV0l7IbSrILBj0chYDw-/exec';  // Paste your deployed Apps Script URL
+        // ══════════════════════════════════════════════════════════
+
+        let lang = 'en', currentSection = 0, answers = {}, responseId = '';
+        const dims = [
+            {
+                id: 'expectancy', en: {
+                    t: 'Expectancy for Success', d: 'How confident are you in your ability to use AI effectively?',
+                    items: ['I believe I can learn to use AI tools effectively.', 'I expect to do well when working with AI applications.', 'I am confident I can figure out how to use new AI technologies.', 'I feel capable of getting good results when I use AI.']
+                },
+                es: {
+                    t: 'Expectativa de Éxito', d: '¿Qué tan seguro/a estás de tu capacidad para usar IA eficazmente?',
+                    items: ['Creo que puedo aprender a usar herramientas de IA eficazmente.', 'Espero desempeñarme bien al trabajar con aplicaciones de IA.', 'Confío en que puedo descubrir cómo usar nuevas tecnologías de IA.', 'Me siento capaz de obtener buenos resultados cuando uso IA.']
+                }
+            },
+            {
+                id: 'intrinsic', en: {
+                    t: 'Intrinsic Value', d: 'How much do you enjoy engaging with AI?',
+                    items: ['I find using AI tools genuinely interesting.', 'I enjoy exploring what AI can do.', 'Working with AI is fun and stimulating for me.', 'I look forward to opportunities to use AI.']
+                },
+                es: {
+                    t: 'Valor Intrínseco', d: '¿Cuánto disfrutas interactuar con la IA?',
+                    items: ['Encuentro el uso de herramientas de IA genuinamente interesante.', 'Disfruto explorar lo que la IA puede hacer.', 'Trabajar con IA es divertido y estimulante para mí.', 'Espero con entusiasmo las oportunidades de usar IA.']
+                }
+            },
+            {
+                id: 'utility', en: {
+                    t: 'Utility Value', d: 'How useful do you perceive AI to be for your goals?',
+                    items: ['AI skills will be useful for my future career.', 'Learning to use AI will help me achieve my academic goals.', 'Understanding AI is practical for everyday tasks.', 'AI competence will give me an advantage in the job market.']
+                },
+                es: {
+                    t: 'Valor de Utilidad', d: '¿Qué tan útil percibes que es la IA para tus metas?',
+                    items: ['Las habilidades de IA serán útiles para mi futura carrera.', 'Aprender a usar IA me ayudará a alcanzar mis metas académicas.', 'Entender la IA es práctico para tareas cotidianas.', 'La competencia en IA me dará una ventaja en el mercado laboral.']
+                }
+            },
+            {
+                id: 'attainment', en: {
+                    t: 'Attainment Value', d: 'How important is it for your identity to be skilled with AI?',
+                    items: ['Being good at using AI is important to me.', 'It matters to me that I\'m seen as someone who can work with AI.', 'Mastering AI tools is a priority in my personal development.', 'I would feel proud to be highly skilled with AI.']
+                },
+                es: {
+                    t: 'Valor de Logro', d: '¿Qué tan importante es para tu identidad ser hábil con la IA?',
+                    items: ['Ser bueno/a usando IA es importante para mí.', 'Me importa que me vean como alguien que puede trabajar con IA.', 'Dominar herramientas de IA es una prioridad en mi desarrollo personal.', 'Me sentiría orgulloso/a de ser altamente hábil con la IA.']
+                }
+            },
+            {
+                id: 'cost', reverse: true, en: {
+                    t: 'Cost', d: 'What negative aspects do you associate with using AI?',
+                    items: ['Learning AI takes too much time and effort.', 'Using AI makes me feel anxious or stressed.', 'Engaging with AI means I miss out on other valuable activities.', 'The effort required to learn AI outweighs its benefits.']
+                },
+                es: {
+                    t: 'Costo', d: '¿Qué aspectos negativos asocias con el uso de IA?',
+                    items: ['Aprender IA requiere demasiado tiempo y esfuerzo.', 'Usar IA me hace sentir ansioso/a o estresado/a.', 'Dedicarme a la IA significa perderme otras actividades valiosas.', 'El esfuerzo requerido para aprender IA supera sus beneficios.']
+                }
+            }
+        ];
+        const ui = {
+            en: {
+                subtitle: 'Explore your motivation and beliefs about using Artificial Intelligence through 20 research-based questions.',
+                consentTitle: 'Informed Consent', consentBody: '<h3>Informed Consent</h3><p>You are invited to participate in a survey about your perceptions of Artificial Intelligence (AI). This questionnaire is based on the Expectancy-Value Theory by Wigfield & Eccles.</p><p><strong>Purpose:</strong> To understand your motivational beliefs regarding AI use in learning and professional contexts.</p><p><strong>What to expect:</strong> You will answer 20 questions across 5 dimensions using a 7-point scale. The survey takes approximately 5–8 minutes.</p><p><strong>Privacy:</strong> Your responses are collected anonymously. No personally identifiable information is recorded. Aggregate data may be used for research and educational improvement purposes.</p><p><strong>Voluntary:</strong> Your participation is completely voluntary. You may withdraw at any time by closing the browser window.</p>',
+                consentAgree: 'I have read and agree to participate in this survey.', consentContinue: 'Continue',
+                demoTitle: 'About You', demoSub: 'Optional — helps us understand our respondents better.',
+                roleLabel: 'Role', ageLabel: 'Age Range', fieldLabel: 'Field of Study', expLabel: 'AI Experience',
+                roles: ['Student', 'Faculty/Instructor', 'Researcher', 'Professional', 'Other'],
+                ages: ['Under 18', '18–24', '25–34', '35–44', '45–54', '55+'],
+                fields: ['Education', 'Engineering', 'Sciences', 'Business', 'Arts & Humanities', 'Health', 'Technology', 'Other'],
+                exps: ['None', 'Beginner', 'Intermediate', 'Advanced', 'Expert'],
+                beginBtn: 'Begin Questionnaire', sectionOf: 'Section {0} of 5',
+                sdLabel: 'Strongly Disagree', saLabel: 'Strongly Agree', prev: 'Previous', next: 'Next', viewResults: 'View Results',
+                resultsTitle: 'Your Results', resultsSub: "Here's a breakdown of your Expectancy-Value profile for AI use.",
+                overallLabel: 'Overall EVQ Score', radarLabel: 'Dimension Profile', dlBtn: 'Download Report', emBtn: 'Send to Email', rtBtn: 'Retake',
+                low: 'Area for Growth', moderate: 'Developing', high: 'Strength',
+                fb: {
+                    expectancy: { low: 'You currently feel less confident about your ability to succeed with AI. Start with simple tools and build confidence gradually.', moderate: 'You have a developing sense of confidence in using AI. Continued hands-on experience will strengthen your self-belief.', high: 'You feel highly confident in using AI effectively. This strong expectancy is a great foundation for learning.' },
+                    intrinsic: { low: 'You don\'t currently find AI particularly enjoyable. Explore creative AI applications to discover what sparks your interest.', moderate: 'You have moderate interest in AI. Trying diverse applications may help you find areas you find genuinely engaging.', high: 'You genuinely enjoy AI! This natural curiosity will drive deep and sustained learning.' },
+                    utility: { low: 'You\'re not fully convinced AI is useful for your goals. Exploring real-world applications in your field may shift this perspective.', moderate: 'You see some practical value in AI. As AI integrates into more professions, its utility will become clearer.', high: 'You strongly recognize AI\'s usefulness for your goals. This will motivate you to develop practical AI skills.' },
+                    attainment: { low: 'Being skilled with AI isn\'t central to your identity right now. Value may grow as you see how AI connects to things you care about.', moderate: 'AI competence is somewhat important to your sense of self. This can deepen as you develop your skills.', high: 'AI mastery is an important part of how you see yourself. You\'ll be motivated to invest in becoming proficient.' },
+                    cost: { low: 'You perceive high costs to learning AI. Breaking learning into small steps can help reduce these barriers.', moderate: 'You experience moderate concern about costs of AI engagement. Seeking efficient learning paths can help.', high: 'You see low costs to engaging with AI — effort and stress feel manageable. This makes consistent engagement easier.' }
+                },
+                overallFb: { low: 'Your profile suggests you\'re in the early stages of building motivation for AI. Focus on small wins.', moderate: 'You have a solid developing relationship with AI. Continue building skills to strengthen your motivation.', high: 'Excellent! You have a strong EVQ profile for AI. You\'re well-positioned to thrive in AI-enhanced environments.' }
+            },
+            es: {
+                subtitle: 'Explora tu motivación y creencias sobre el uso de la Inteligencia Artificial a través de 20 preguntas basadas en investigación.',
+                consentTitle: 'Consentimiento Informado', consentBody: '<h3>Consentimiento Informado</h3><p>Te invitamos a participar en una encuesta sobre tus percepciones de la Inteligencia Artificial (IA). Este cuestionario se basa en la Teoría de Expectativa-Valor de Wigfield y Eccles.</p><p><strong>Propósito:</strong> Comprender tus creencias motivacionales respecto al uso de IA en contextos de aprendizaje y profesionales.</p><p><strong>Qué esperar:</strong> Responderás 20 preguntas en 5 dimensiones usando una escala de 7 puntos. La encuesta toma aproximadamente 5–8 minutos.</p><p><strong>Privacidad:</strong> Tus respuestas se recopilan de forma anónima. No se registra información personal identificable.</p><p><strong>Voluntario:</strong> Tu participación es completamente voluntaria. Puedes retirarte en cualquier momento cerrando la ventana del navegador.</p>',
+                consentAgree: 'He leído y acepto participar en esta encuesta.', consentContinue: 'Continuar',
+                demoTitle: 'Sobre Ti', demoSub: 'Opcional — nos ayuda a entender mejor a nuestros participantes.',
+                roleLabel: 'Rol', ageLabel: 'Rango de Edad', fieldLabel: 'Campo de Estudio', expLabel: 'Experiencia con IA',
+                roles: ['Estudiante', 'Docente/Instructor', 'Investigador/a', 'Profesional', 'Otro'],
+                ages: ['Menor de 18', '18–24', '25–34', '35–44', '45–54', '55+'],
+                fields: ['Educación', 'Ingeniería', 'Ciencias', 'Negocios', 'Artes y Humanidades', 'Salud', 'Tecnología', 'Otro'],
+                exps: ['Ninguna', 'Principiante', 'Intermedio', 'Avanzado', 'Experto'],
+                beginBtn: 'Comenzar Cuestionario', sectionOf: 'Sección {0} de 5',
+                sdLabel: 'Muy en Desacuerdo', saLabel: 'Muy de Acuerdo', prev: 'Anterior', next: 'Siguiente', viewResults: 'Ver Resultados',
+                resultsTitle: 'Tus Resultados', resultsSub: 'Aquí tienes un desglose de tu perfil de Expectativa-Valor para el uso de IA.',
+                overallLabel: 'Puntuación General EVQ', radarLabel: 'Perfil por Dimensión', dlBtn: 'Descargar Reporte', emBtn: 'Enviar por Email', rtBtn: 'Repetir',
+                low: 'Área de Crecimiento', moderate: 'En Desarrollo', high: 'Fortaleza',
+                fb: {
+                    expectancy: { low: 'Actualmente te sientes menos seguro/a sobre usar IA. Comienza con herramientas simples y construye confianza gradualmente.', moderate: 'Tienes un sentido de confianza en desarrollo para usar IA. La experiencia práctica continuada fortalecerá tu autoconfianza.', high: 'Te sientes altamente confiado/a en usar IA eficazmente. Esta fuerte expectativa es una gran base para el aprendizaje.' },
+                    intrinsic: { low: 'Actualmente no encuentras la IA particularmente disfrutable. Explora aplicaciones creativas de IA para descubrir qué te interesa.', moderate: 'Tienes un interés moderado en IA. Probar diversas aplicaciones puede ayudarte a encontrar áreas genuinamente atractivas.', high: '¡Disfrutas genuinamente la IA! Esta curiosidad natural impulsará un aprendizaje profundo y sostenido.' },
+                    utility: { low: 'No estás completamente convencido/a de que la IA sea útil para tus metas. Explorar aplicaciones reales puede cambiar esta perspectiva.', moderate: 'Ves algo de valor práctico en la IA. A medida que la IA se integre en más profesiones, su utilidad será más clara.', high: 'Reconoces fuertemente la utilidad de la IA para tus metas. Esto te motivará a desarrollar habilidades prácticas.' },
+                    attainment: { low: 'Ser hábil con IA no es central para tu identidad ahora. El valor puede crecer al ver cómo la IA se conecta con lo que te importa.', moderate: 'La competencia en IA es algo importante para tu sentido de identidad. Esto puede profundizarse al desarrollar tus habilidades.', high: 'El dominio de la IA es una parte importante de cómo te ves. Estarás motivado/a a invertir en ser competente.' },
+                    cost: { low: 'Percibes altos costos al aprender IA. Dividir el aprendizaje en pequeños pasos puede reducir estas barreras.', moderate: 'Experimentas una preocupación moderada sobre los costos de la IA. Buscar rutas de aprendizaje eficientes puede ayudar.', high: 'Ves bajos costos al interactuar con IA — el esfuerzo y estrés se sienten manejables. Esto facilita el compromiso consistente.' }
+                },
+                overallFb: { low: 'Tu perfil sugiere que estás en las etapas iniciales de construir motivación para IA. Enfócate en pequeños logros.', moderate: 'Tienes una relación en desarrollo sólida con la IA. Continúa construyendo habilidades para fortalecer tu motivación.', high: '¡Excelente! Tienes un perfil EVQ fuerte para IA. Estás bien posicionado/a para prosperar en entornos potenciados por IA.' }
+            }
+        };
+        function T() { return ui[lang]; }
+        function genId() { return 'EVQ-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5).toUpperCase(); }
+        function setLang(l) {
+            lang = l;
+            document.getElementById('langEn').classList.toggle('active', l === 'en');
+            document.getElementById('langEs').classList.toggle('active', l === 'es');
+            document.getElementById('langEn').setAttribute('aria-checked', l === 'en');
+            document.getElementById('langEs').setAttribute('aria-checked', l === 'es');
+            document.documentElement.lang = l;
+            applyLang();
+            localStorage.setItem('evq_lang', l);
+        }
+        function applyLang() {
+            const t = T();
+            document.getElementById('headerSubtitle').textContent = t.subtitle;
+            document.getElementById('consentText').innerHTML = t.consentBody;
+            document.getElementById('consentLabel').textContent = t.consentAgree;
+            document.getElementById('consentBtnText').textContent = t.consentContinue;
+            document.getElementById('demoTitle').textContent = t.demoTitle;
+            document.getElementById('demoSubtitle').textContent = t.demoSub;
+            document.getElementById('demoRoleLabel').textContent = t.roleLabel;
+            document.getElementById('demoAgeLabel').textContent = t.ageLabel;
+            document.getElementById('demoFieldLabel').textContent = t.fieldLabel;
+            document.getElementById('demoExpLabel').textContent = t.expLabel;
+            document.getElementById('demoBtnText').textContent = t.beginBtn;
+            fillSelect('demoRole', t.roles); fillSelect('demoAge', t.ages); fillSelect('demoField', t.fields); fillSelect('demoExp', t.exps);
+            document.getElementById('resultsTitle').textContent = t.resultsTitle;
+            document.getElementById('resultsSubtitle').textContent = t.resultsSub;
+            document.getElementById('overallLabel').textContent = t.overallLabel;
+            document.getElementById('radarLabel').textContent = t.radarLabel;
+            document.getElementById('dlBtn').textContent = t.dlBtn;
+            document.getElementById('emBtn').textContent = t.emBtn;
+            document.getElementById('rtBtn').textContent = t.rtBtn;
+            // Update dimension tabs + sections
+            dims.forEach((dim, i) => {
+                const tab = document.getElementById('tab-' + i);
+                if (tab) tab.textContent = dim[lang].t;
+                const sh = document.querySelector('#section-' + i + ' .section-header');
+                if (sh) { sh.querySelector('h2').textContent = dim[lang].t; sh.querySelector('p').textContent = dim[lang].d; }
+                dim[lang].items.forEach((item, j) => {
+                    const qt = document.querySelector(`#card-${dim.id}_${j} .question-text`);
+                    if (qt) qt.textContent = item;
+                });
+            });
+            // Update likert labels
+            document.querySelectorAll('.likert-labels').forEach(ll => {
+                ll.children[0].textContent = t.sdLabel; ll.children[1].textContent = t.saLabel;
+            });
+            // Nav buttons
+            document.querySelectorAll('.prev-btn-text').forEach(e => e.textContent = t.prev);
+            document.querySelectorAll('.next-btn-text').forEach(e => e.textContent = t.next);
+            const sb = document.getElementById('submitBtn');
+            if (sb) sb.querySelector('.submit-btn-text').textContent = t.viewResults;
+        }
+        function fillSelect(id, opts) {
+            const sel = document.getElementById(id); const cur = sel.value;
+            sel.innerHTML = '<option value="">—</option>' + opts.map(o => `<option value="${o}">${o}</option>`).join('');
+            sel.value = cur;
+        }
+        // ── CONSENT ──
+        document.getElementById('consentCheckbox').addEventListener('change', function () {
+            document.getElementById('consentBtn').disabled = !this.checked;
+        });
+        function startDemographics() {
+            document.getElementById('consentScreen').classList.remove('active');
+            document.getElementById('demoScreen').classList.add('active');
+            localStorage.setItem('evq_consent', '1');
+        }
+        function startQuestionnaire() {
+            document.getElementById('demoScreen').classList.remove('active');
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('dimNav').style.display = 'flex';
+            responseId = genId();
+            saveDemoToStorage();
+            buildSections();
+            showSection(0);
+            updateProgress();
+            restoreAnswers();
+        }
+        function saveDemoToStorage() {
+            const d = {
+                role: document.getElementById('demoRole').value, age: document.getElementById('demoAge').value,
+                field: document.getElementById('demoField').value, exp: document.getElementById('demoExp').value
+            };
+            localStorage.setItem('evq_demo', JSON.stringify(d));
+        }
+        // ── BUILD ──
+        function buildNav() {
+            const nav = document.getElementById('dimNav');
+            nav.innerHTML = '';
+            dims.forEach((dim, i) => {
+                const tab = document.createElement('button');
+                tab.className = 'dim-tab' + (i === 0 ? ' active' : '');
+                tab.textContent = dim[lang].t;
+                tab.onclick = () => goToSection(i);
+                tab.id = 'tab-' + i; tab.role = 'tab'; tab.setAttribute('aria-selected', i === 0);
+                nav.appendChild(tab);
+            });
+        }
+        function buildSections() {
+            buildNav();
+            const c = document.getElementById('questionnaire'); c.innerHTML = '';
+            const t = T();
+            dims.forEach((dim, dIdx) => {
+                const sec = document.createElement('div');
+                sec.className = 'section' + (dIdx === 0 ? ' active' : '');
+                sec.id = 'section-' + dIdx; sec.setAttribute('role', 'tabpanel');
+                let h = `<div class="section-header"><h2>${dim[lang].t}</h2><p>${dim[lang].d}</p></div>`;
+                dim[lang].items.forEach((item, iIdx) => {
+                    const qId = `${dim.id}_${iIdx}`, gn = dIdx * 4 + iIdx + 1;
+                    h += `<div class="question-card" id="card-${qId}" role="group" aria-labelledby="qt-${qId}">
+        <div class="question-num" aria-hidden="true">${gn}</div>
+        <div class="question-text" id="qt-${qId}">${item}</div>
+        <div class="likert-labels"><span>${t.sdLabel}</span><span>${t.saLabel}</span></div>
+        <div class="likert-row" role="radiogroup" aria-labelledby="qt-${qId}">
+          ${[1, 2, 3, 4, 5, 6, 7].map(v => `<div class="likert-option">
+            <input type="radio" name="${qId}" id="${qId}_${v}" value="${v}" onchange="onAnswer('${qId}',${v})" aria-label="${v}">
+            <label for="${qId}_${v}">${v}</label></div>`).join('')}
+        </div></div>`;
+                });
+                h += `<div class="nav-buttons">`;
+                if (dIdx > 0) h += `<button class="btn btn-secondary" onclick="goToSection(${dIdx - 1})" aria-label="${t.prev}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span class="prev-btn-text">${t.prev}</span></button>`;
+                else h += `<div></div>`;
+                if (dIdx < dims.length - 1) h += `<button class="btn btn-primary" onclick="goToSection(${dIdx + 1})" aria-label="${t.next}"><span class="next-btn-text">${t.next}</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+                else h += `<button class="btn btn-primary" id="submitBtn" onclick="submitQuiz()" disabled><span class="submit-btn-text">${t.viewResults}</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+                h += `</div>`;
+                sec.innerHTML = h; c.appendChild(sec);
+            });
+        }
+        function onAnswer(qId, v) { answers[qId] = v; document.getElementById('card-' + qId).classList.add('answered'); updateProgress(); checkSubmit(); localStorage.setItem('evq_answers', JSON.stringify(answers)); }
+        function showSection(i) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.dim-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+            const s = document.getElementById('section-' + i), tb = document.getElementById('tab-' + i);
+            if (s) s.classList.add('active'); if (tb) { tb.classList.add('active'); tb.setAttribute('aria-selected', 'true'); tb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
+            currentSection = i;
+            document.getElementById('progressLabel').textContent = T().sectionOf.replace('{0}', i + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function goToSection(i) { showSection(i); dims.forEach((dim, di) => { const ok = dim[lang].items.every((_, j) => answers[`${dim.id}_${j}`] !== undefined); const tb = document.getElementById('tab-' + di); if (ok && di !== i) tb.classList.add('completed'); else tb.classList.remove('completed'); }); }
+        function updateProgress() { const tot = 20, ans = Object.keys(answers).length, pct = Math.round(ans / tot * 100); document.getElementById('progressFill').style.width = pct + '%'; document.getElementById('progressPercent').textContent = pct + '%'; document.getElementById('progressFill').setAttribute('aria-valuenow', pct); }
+        function checkSubmit() { const btn = document.getElementById('submitBtn'); if (btn) btn.disabled = Object.keys(answers).length < 20; }
+        function restoreAnswers() { Object.entries(answers).forEach(([qId, v]) => { const r = document.getElementById(qId + '_' + v); if (r) { r.checked = true; document.getElementById('card-' + qId).classList.add('answered'); } }); updateProgress(); checkSubmit(); }
+        // ── SCORING ──
+        function computeScores() { const s = {}; dims.forEach(dim => { let vals = dim[lang].items.map((_, j) => answers[`${dim.id}_${j}`]); if (dim.reverse) vals = vals.map(v => 8 - v); s[dim.id] = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 100) / 100; }); return s; }
+        function getLevel(s) { return s <= 3 ? 'low' : s <= 5 ? 'moderate' : 'high'; }
+        function getLevelLabel(l) { return T()[l]; }
+        // ── RADAR CHART ──
+        function drawRadar(scores) {
+            const svg = document.getElementById('radarChart'), cx = 150, cy = 150, R = 110, n = 5;
+            const labels = dims.map(d => d[lang].t), vals = dims.map(d => scores[d.id] / 7);
+            let html = '';
+            // Grid rings
+            for (let r = 1; r <= 5; r++) {
+                const rad = R * r / 5; const pts = []; for (let i = 0; i < n; i++) { const a = Math.PI * 2 * i / n - Math.PI / 2; pts.push(`${cx + rad * Math.cos(a)},${cy + rad * Math.sin(a)}`); }
+                html += `<polygon points="${pts.join(' ')}" fill="none" stroke="rgba(207,185,145,0.12)" stroke-width="1"/>`;
+            }
+            // Axes
+            for (let i = 0; i < n; i++) { const a = Math.PI * 2 * i / n - Math.PI / 2; html += `<line x1="${cx}" y1="${cy}" x2="${cx + R * Math.cos(a)}" y2="${cy + R * Math.sin(a)}" stroke="rgba(207,185,145,0.15)" stroke-width="1"/>`; }
+            // Data polygon
+            const dataPts = vals.map((v, i) => { const a = Math.PI * 2 * i / n - Math.PI / 2; return `${cx + R * v * Math.cos(a)},${cy + R * v * Math.sin(a)}`; });
+            html += `<polygon points="${dataPts.join(' ')}" fill="rgba(207,185,145,0.15)" stroke="#CFB991" stroke-width="2.5"/>`;
+            // Data dots + labels
+            vals.forEach((v, i) => {
+                const a = Math.PI * 2 * i / n - Math.PI / 2; const x = cx + R * v * Math.cos(a), y = cy + R * v * Math.sin(a);
+                html += `<circle cx="${x}" cy="${y}" r="5" fill="#DAAA00" stroke="#000" stroke-width="2"/>`;
+                const lx = cx + (R + 25) * Math.cos(a), ly = cy + (R + 25) * Math.sin(a);
+                const anchor = Math.abs(Math.cos(a)) < 0.1 ? 'middle' : Math.cos(a) > 0 ? 'start' : 'end';
+                html += `<text x="${lx}" y="${ly}" fill="#C4BFC0" font-size="10" font-weight="600" text-anchor="${anchor}" dominant-baseline="middle">${labels[i]}</text>`;
+            });
+            svg.innerHTML = html;
+        }
+        // ── CONFETTI ──
+        function launchConfetti() {
+            const canvas = document.getElementById('confettiCanvas'), ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            const colors = ['#CFB991', '#DAAA00', '#DDB945', '#8E6F3E', '#EBD99F', '#FFF'];
+            const pieces = Array.from({ length: 150 }, () => ({
+                x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height, w: Math.random() * 8 + 4, h: Math.random() * 6 + 2,
+                color: colors[Math.floor(Math.random() * colors.length)], vx: (Math.random() - 0.5) * 4, vy: Math.random() * 4 + 2, rot: Math.random() * 360, rv: (Math.random() - 0.5) * 8
+            }));
+            let frame = 0;
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); pieces.forEach(p => {
+                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180); ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, 1 - frame / 180); ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+                    p.x += p.vx; p.y += p.vy; p.rot += p.rv; p.vy += 0.05;
+                }); frame++; if (frame < 200) requestAnimationFrame(draw); else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            draw();
+        }
+        // ── SUBMIT ──
+        function submitQuiz() {
+            const scores = computeScores(), t = T();
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('dimNav').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('resultsSection').classList.add('active');
+            launchConfetti();
+            // Overall
+            const all = Object.values(scores), overall = Math.round(all.reduce((a, b) => a + b, 0) / all.length * 100) / 100;
+            document.getElementById('overallValue').textContent = overall.toFixed(1);
+            const circ = 2 * Math.PI * 55, off = circ - (overall / 7) * circ;
+            setTimeout(() => document.getElementById('overallRing').style.strokeDashoffset = off, 300);
+            document.getElementById('overallFeedback').textContent = t.overallFb[getLevel(overall)];
+            // Radar
+            drawRadar(scores);
+            // Dimension cards
+            const grid = document.getElementById('scoreGrid'); grid.innerHTML = '';
+            dims.forEach((dim, i) => {
+                const sc = scores[dim.id], lv = getLevel(sc), pct = (sc / 7) * 100;
+                const card = document.createElement('div'); card.className = 'score-card'; card.setAttribute('role', 'article');
+                card.innerHTML = `<div class="score-card-top"><div class="score-card-title">${dim[lang].t}</div><div class="score-card-value">${sc.toFixed(1)}</div></div>
+      <div class="score-bar-track"><div class="score-bar-fill ${lv}" id="bar-${dim.id}"></div></div>
+      <span class="score-level ${lv}">${getLevelLabel(lv)}</span><p class="score-feedback">${t.fb[dim.id][lv]}</p>`;
+                grid.appendChild(card);
+                setTimeout(() => { card.classList.add('visible'); document.getElementById('bar-' + dim.id).style.width = pct + '%'; }, 400 + i * 200);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            sendToGoogleSheet(scores, overall);
+            localStorage.removeItem('evq_answers');
+        }
+        // ── GOOGLE SHEETS ──
+        function sendToGoogleSheet(scores, overall) {
+            if (!GOOGLE_SHEET_URL) return;
+            const demo = JSON.parse(localStorage.getItem('evq_demo') || '{}');
+            // Item-level data: raw responses (1-7) for all 20 items
+            const itemData = {};
+            const prefixes = { expectancy: 'EXP', intrinsic: 'INT', utility: 'UTL', attainment: 'ATT', cost: 'CST' };
+            dims.forEach(dim => {
+                const pfx = prefixes[dim.id];
+                for (let j = 0; j < 4; j++) {
+                    const raw = answers[`${dim.id}_${j}`] || '';
+                    itemData[`${pfx}${j + 1}`] = raw;
+                    // For cost items, also send the reverse-scored value
+                    if (dim.reverse && raw !== '') {
+                        itemData[`${pfx}${j + 1}_R`] = 8 - raw;
+                    }
+                }
+            });
+            const payload = {
+                responseId, timestamp: new Date().toISOString(), language: lang,
+                role: demo.role || '', ageRange: demo.age || '', fieldOfStudy: demo.field || '', aiExperience: demo.exp || '',
+                // Item-level (20 raw + 4 reverse-scored cost)
+                ...itemData,
+                // Composite dimension scores (averages)
+                expectancy_composite: scores.expectancy,
+                intrinsic_composite: scores.intrinsic,
+                utility_composite: scores.utility,
+                attainment_composite: scores.attainment,
+                cost_composite: scores.cost,
+                // Overall total
+                overall_total: overall
+            };
+            fetch(GOOGLE_SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(() => { });
+        }
+        // ── REPORT ──
+        function downloadReport() { window.print(); }
+        function emailReport() {
+            const scores = computeScores(), t = T();
+            const overall = Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length;
+            let body = `AI Expectancy-Value Questionnaire Results\nID: ${responseId}\n${'='.repeat(45)}\n\nOverall Score: ${overall.toFixed(1)} / 7.0\n\n`;
+            dims.forEach(dim => { const sc = scores[dim.id], lv = getLevel(sc); body += `${dim[lang].t}: ${sc.toFixed(1)} / 7.0 (${getLevelLabel(lv)})\n${t.fb[dim.id][lv]}\n\n`; });
+            body += `\nBased on Wigfield & Eccles' Expectancy-Value Theory.\nGenerated: ${new Date().toLocaleDateString()}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent('My AI EVQ Results')}&body=${encodeURIComponent(body)}`;
+        }
+        function retakeQuiz() {
+            answers = {}; currentSection = 0; responseId = genId();
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('dimNav').style.display = 'flex';
+            document.getElementById('progressBar').style.display = 'block';
+            document.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+            document.querySelectorAll('.question-card').forEach(c => c.classList.remove('answered'));
+            document.querySelectorAll('.dim-tab').forEach(t => t.classList.remove('completed'));
+            showSection(0); updateProgress(); checkSubmit();
+            localStorage.removeItem('evq_answers');
+        }
+        // ── INIT ──
+        (function init() {
+            const savedLang = localStorage.getItem('evq_lang');
+            if (savedLang) setLang(savedLang); else applyLang();
+            const savedAnswers = localStorage.getItem('evq_answers');
+            if (savedAnswers) { try { answers = JSON.parse(savedAnswers); } catch (e) { } }
+            responseId = genId();
+        })();
+    </script>
+</body>
+
+</html>
